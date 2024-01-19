@@ -1,0 +1,70 @@
+<div class="container">
+    <h1 class="text-center mt-3" style="color: green;">Sửa thông tin nước uống</h1>
+    {{#each catergory}}
+        <form id="edCatFrom"   enctype="multipart/form-data"> 
+          <div class="mb-3 ">
+          <label for="titleName" class="form-label">Đặt tên</label>
+          <div class="d-flex justify-content-between">
+                <input type="text" class="form-control" id="titleName" name="ucatName" value="{{this.TENLOAI}}">
+          </div>
+          
+        </div>
+        <div class="mb-3">
+            <img src="http://192.168.162.172:1144/imgs/{{this.ANHLOAI}}" alt="img FASHION" id="selectedImg" class="mb-2"><br>
+          <label for="formFile" class="form-label">Chọn ảnh mới</label>
+          <input class="form-control" type="file" id="formFile" name="putCatImage">
+        </div>
+           <div class="modal-footer">
+          <button type="submit" class="btn btn-primary m-3" onclick="editHandle({{this.MALOAI}})">Lưu lại</button>
+        </div>
+        </form>
+      {{/each}}
+</div>
+
+<script>
+  const imageEdit = document.querySelector('#formFile')
+
+function editHandle(id) {
+  const form = document.querySelector('#edCatFrom')
+  const formData = new FormData(form)
+
+  formData.append('id', id);
+
+  fetch(`http://192.168.162.172:1144/products/catergory/update`, {
+    method: 'PUT',
+    body: formData
+  })
+  .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Lỗi khi gửi biểu mẫu.');
+    })
+    .then(data => {
+      console.log('Kết quả từ server:', data);
+      alert('Cập nhật thành công !!')
+    })
+    .catch(error => {
+      console.error('Lỗi:', error);
+    });
+}
+
+document.getElementById('edCatFrom').addEventListener('submit', function (event) {
+  event.preventDefault(); 
+});
+
+const selectedImg = document.querySelector('#selectedImg')
+let currentObjectURL = null;
+
+imageEdit.addEventListener('change', (event) => {
+ const fileSelected = event.target.files[0]
+      if(currentObjectURL){
+        URL.revokeObjectURL(currentObjectURL)
+      }
+      if(fileSelected){
+        currentObjectURL = URL.createObjectURL(fileSelected)
+        selectedImg.src = currentObjectURL
+        {{!-- console.log(currentObjectURL) --}}
+      }
+})
+</script>

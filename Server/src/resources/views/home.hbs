@@ -1,0 +1,73 @@
+
+<select name="cities" id="selectCity">
+<option >Chọn tỉnh thành phố</option>
+{{#each cities}}
+<option value={{this.matp}}>{{this.name}}</option>
+{{/each}}
+</select>
+{{#if lenCities}}
+<p>Numbers tp: {{lenCities}}</p>
+{{/if}}
+
+<select name="districts" id="selectDistricts" style="width: 200px;">
+<option>Chọn quận huyện</option>
+</select>
+
+
+
+<select name="phuongXa" id="selectPhuongXa" style="width: 200px;">
+<option >Chọn phường xã</option>
+
+</select>
+
+<script>
+    {{!-- quan huyen --}}
+    $(document).ready(function(){
+			$("#selectCity").change(function(){
+				var cityId = $("#selectCity").val();
+				$.ajax({
+					url: `/home/city/${cityId}`,
+					method: 'post',
+				}).done((districts)=>{
+					$('#selectDistricts').empty()
+					$('#selectDistricts').append('<option>Chọn quận huyện</option>');
+					districts.forEach((district)=>{
+						$('#selectDistricts').append('<option value='+ district.maqh+'>' + district.name + '</option>')
+					})
+				})
+			})
+		})
+
+		{{!-- phuong xa --}}
+	const selectPhuongXa = document.querySelector('#selectPhuongXa')
+	const selectDistricts = document.querySelector('#selectDistricts')
+
+	selectDistricts.addEventListener('change', (event) => {
+    const districtID = selectDistricts.value; // Get the selected district ID
+    fetch(`http://127.0.0.1:1144/home/district/${districtID}`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((phuongxa) => {
+        // Xóa tất cả các tùy chọn hiện tại trong selectPhuongXa
+        selectPhuongXa.innerHTML = '';
+        
+        // Thêm tùy chọn mặc định vào đầu tiên
+        const defaultOption = document.createElement('option');
+        defaultOption.textContent = 'Chọn phường xã';
+        selectPhuongXa.appendChild(defaultOption);
+        
+        // Thêm các tùy chọn từ dữ liệu phường xã vào selectPhuongXa
+        phuongxa.forEach((pxa) => {
+            const option = document.createElement('option');
+            option.value = pxa.xaid;
+            option.textContent = pxa.name;
+            selectPhuongXa.appendChild(option);
+        });
+        })
+        .catch((error) => {
+            console.error('Errordistrict:', error);
+        });
+});
+
+</script>

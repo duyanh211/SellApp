@@ -1,0 +1,93 @@
+<div class="container mt-3">
+    <h2>
+      Danh sách người dùng
+    </h2>
+    <div class="container">
+      <input type="text" placeholder="Tiềm kiếm người dùng" id="search_input"> 
+      <button class="btn btn-info"  style="height: 30px; border-radius: 2px;" onclick="searchHandle()"><p class="lh-1">Tìm kiếm</p></button>
+    </div>
+
+    <table class="table table-light mt-3">
+    <thead>
+      <tr>
+        <th>Stt</th>
+        <th>Tên người dùng</th>
+        <th>Ảnh</th>
+        <th>Địa chỉ</th>
+        <th>Số điện thoại</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+        {{#each users}}
+      <tr>
+        <td><h5 class="text-center mt-3">{{plus @index 1}}</h5></td>
+        <td class=""><h5 class="text-center mt-3">{{this.tennd}}</h5></td>
+        {{#if this.anhnd}}
+        <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/{{this.anhnd}}" alt="" class="myImgs"></td>
+        {{else}}
+        <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/user1.jpg" alt="" class="myImgs"></td>
+        {{/if}}
+        <td class=""><h5 class="text-center mt-3">{{this.diachi}}</h5></td>
+        <td class=""><h5 class="text-center mt-3">{{this.sdt}}</h5></td>
+        <td>
+          <div class="mt-3">
+            {{!-- <button class="btn btn-danger delete-cate" data-idloai="{{this.mand}}">Xóa</button> --}}
+            <a class="btn btn-info" href="list/details/{{this.mand}}">Chi Tiết</a>
+          </div>
+            
+        </td>
+      </tr>
+          {{/each}}
+    </tbody>
+  </table>
+
+    <div class="my-5 cross-line "></div>
+  </div>
+  
+<style>
+
+th{
+  text-align: center;
+}
+</style>
+
+<script>
+  const input = document.getElementById('search_input')
+  const tbody = document.querySelector('tbody')
+  function searchHandle(){
+    const data = input.value
+    fetch(`http://192.168.162.172:1144/users/list/${data}`)
+      .then((res) => {
+            return res.json();
+        })
+        .then((dataMatchSearch) => {
+          tbody.innerHTML = ''
+          console.log(dataMatchSearch)
+            dataMatchSearch.forEach((user, index) => {
+              const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td><h5 class="text-center mt-3">${index+1}</h5></td>
+                  <td class=""><h5 class="text-center mt-3">${user.tennd}</h5></td>
+                  <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/${user.anhnd}" alt="" class="myImgs"></td>
+                  <td class=""><h5 class="text-center mt-3">${user.diachi}</h5></td>
+                  <td class=""><h5 class="text-center mt-3">${user.sdt}</h5></td>
+                  <td>
+                    <div class="mt-3">
+                      
+                      <a class="btn btn-info edit-cate" href="list/details/${user.mand}">Chi Tiết</a>
+                    </div>
+                  </td>
+                `;
+                tbody.appendChild(row); 
+            })
+        })
+        .catch((error) => {
+            console.error('Errordistrict:', error);
+        });
+  }
+</script>
+
+
+{{!-- <button class="btn btn-danger delete-cate" data-idloai="${user.mand}">Xóa</button> --}}

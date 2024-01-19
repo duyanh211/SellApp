@@ -1,0 +1,217 @@
+<div class="container mt-3">
+    <h2>
+      Danh sách đăng tin của người dùng
+    </h2>
+    <div class="container">
+      <input type="text" placeholder="Tiềm kiếm tin" id="search_input"> 
+      <button class="btn btn-info"  style="height: 30px; border-radius: 2px;" onclick="searchHandle()"><p class="lh-1">Tìm kiếm</p></button>
+      <button class="btn btn-success"  style="height: 30px; border-radius: 2px; margin-left: 200px" onclick="CheckUncheck(1)"><p class="lh-1">Đã duyệt</p></button>
+      <button class="btn btn-warning"  style="height: 30px; border-radius: 2px;" onclick="CheckUncheck(0)"><p class="lh-1">Chưa duyệt</p></button>
+    </div>
+
+    <table class="table table-light mt-3">
+    <thead>
+      <tr>
+        <th>Stt</th>
+        <th>Số điện thoại</th>
+        <th>Tên sản phẩm</th>
+        <th>Ảnh </th>
+        <th>Giá</th>
+        <th>Ngày đăng</th>
+        <th>Tình trạng</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+        {{#each posts}}
+      <tr>
+        <td><h5 class="text-center mt-3">{{plus @index 1}}</h5></td>
+        <td class=""><h5 class="text-center mt-3">{{this.sdt}}</h5></td>
+        <td class=""><h5 class="text-center mt-3">{{this.tensp}}</h5></td>
+        <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/{{this.anhsp}}" alt="" class="myImgs"></td>
+        <td class=""><h5 class="text-center mt-3">{{cost this.gia}} Đồng</h5></td>
+        <td class=""><h5 class="text-center mt-3">{{this.ngaydang}}</h5></td>
+         {{#if this.check}}
+        <td class=""><h5 class="text-center mt-3 text-success">{{this.xacnhan}}</h5></td>
+        <td>
+          <div class="mt-2">
+            <button class="btn btn-danger " data-idtin="{{this.masp}}" onclick="checkStatusFalse(this)" style="width: 66px;">Hủy  </button>
+          </div>
+        </td>
+            {{else}}
+         <td class=""><h5 class="text-center mt-3 text-warning">{{this.xacnhan}}</h5></td>
+         <td>
+         <div class="mt-2">
+               <button class="btn btn-info " data-idtin="{{this.masp}}" onclick="checkStatusTrue(this)">Duyệt</button>
+            </div>
+         </td>
+         {{/if}}
+        
+      </tr>
+          {{/each}}
+    </tbody>
+  </table>
+
+    <div class="my-5 cross-line "></div>
+  </div>
+  
+<style>
+
+th{
+  text-align: center;
+}
+</style>
+
+<script>
+  const input = document.getElementById('search_input')
+  const tbody = document.querySelector('tbody')
+  function searchHandle(){
+    const data = input.value
+    fetch(`http://192.168.162.172:1144/users/productsPost/${data}`)
+      .then((res) => {
+            return res.json();
+        })
+        .then((dataMatchSearch) => {
+          tbody.innerHTML = ''
+          console.log(dataMatchSearch)
+            dataMatchSearch.forEach((post, index) => {
+              const row = document.createElement('tr');
+              let htmlString = ''
+
+              {{!-- xử lý định dạng date --}}
+                  function formatDate(inputDate) {
+                     const options = { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' };
+                     const formattedDate = new Date(inputDate).toLocaleDateString('vi', options);
+                     return formattedDate;
+                  }
+                  const formattedDate = formatDate(post.ngaydang);
+                  const gia = post.gia.toLocaleString('vi-VN');
+                htmlString = `
+                     <td><h5 class="text-center mt-3">${index+1}</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${post.sdt}</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${post.tensp}</h5></td>
+                     <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/${post.anhsp}" alt="" class="myImgs"></td>
+                     <td class=""><h5 class="text-center mt-3">${gia} Đồng</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${formattedDate}</h5></td>`
+                  if (post.xacnhan){
+                     htmlString += `
+                     <td class=""><h5 class="text-center mt-3 text-success">Đã duyệt</h5></td>
+                           <td>
+                        <div class="mt-2">
+                              <button class="btn btn-danger " data-idtin="${post.masp}" onclick="checkStatusFalse(this)" style="width: 66px;">Hủy  </button>
+                        </div>
+                     </td>`
+                  } else {
+                     htmlString += `
+                        <td class=""><h5 class="text-center mt-3 text-warning">Chờ duyệt</h5></td>
+                           <td>
+                           <div class="mt-2">
+                                 <button class="btn btn-info " data-idtin="${post.masp}" onclick="checkStatusTrue(this)">Duyệt</button>
+                              </div>
+                           </td>`
+                  }
+
+                row.innerHTML = htmlString
+                tbody.appendChild(row); 
+            })
+        })
+        .catch((error) => {
+            console.error('Errordistrict:', error);
+        });
+  }
+
+
+  function checkStatusTrue(button){
+   const id = button.getAttribute('data-idtin');
+   const url = `http://192.168.162.172:1144/users/productsPost/checkStatusTrue/${id}`
+   fetch(url)
+   .then((res)=> res.json())
+   .then(data => {
+           if (data.success) {
+            console.log('Server response:', data);
+            window.location.reload(); 
+            {{!-- button.classList = 'btn btn-danger'
+            button.innerHTML = 'Huỷ  ' --}}
+             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+  }
+
+  function checkStatusFalse(button){
+   const id = button.getAttribute('data-idtin');
+   const url = `http://192.168.162.172:1144/users/productsPost/checkStatusFalse/${id}`
+   fetch(url)
+   .then((res)=> res.json())
+   .then(data => {
+           if (data.success) {
+            console.log('Server response:', data);
+            window.location.reload(); 
+            {{!-- button.classList = 'btn btn-success'
+            button.innerHTML = 'Duyệt' --}}
+             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+  }
+
+  function CheckUncheck(check){
+    fetch(`http://192.168.162.172:1144/users/productsPost/check/${check}`)
+      .then((res) => {
+            return res.json();
+        })
+        .then((dataMatchSearch) => {
+          tbody.innerHTML = ''
+          console.log(dataMatchSearch)
+            dataMatchSearch.forEach((post, index) => {
+              const row = document.createElement('tr');
+              let htmlString = ''
+
+              {{!-- xử lý định dạng date --}}
+                  function formatDate(inputDate) {
+                     const options = { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' };
+                     const formattedDate = new Date(inputDate).toLocaleDateString('vi', options);
+                     return formattedDate;
+                  }
+                  const formattedDate = formatDate(post.ngaydang);
+                  const gia = post.gia.toLocaleString('vi-VN');
+                htmlString = `
+                     <td><h5 class="text-center mt-3">${index+1}</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${post.sdt}</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${post.tensp}</h5></td>
+                     <td class="d-flex justify-content-center"><img src="http://192.168.162.172:1144/imgs/${post.anhsp}" alt="" class="myImgs"></td>
+                     <td class=""><h5 class="text-center mt-3">${gia} Đồng</h5></td>
+                     <td class=""><h5 class="text-center mt-3">${formattedDate}</h5></td>`
+                  if (post.xacnhan){
+                     htmlString += `
+                     <td class=""><h5 class="text-center mt-3 text-success">Đã duyệt</h5></td>
+                           <td>
+                        <div class="mt-2">
+                              <button class="btn btn-danger " data-idtin="${post.masp}" onclick="checkStatusFalse(this)" style="width: 66px;">Hủy  </button>
+                        </div>
+                     </td>`
+                  } else {
+                     htmlString += `
+                        <td class=""><h5 class="text-center mt-3 text-warning">Chờ duyệt</h5></td>
+                           <td>
+                           <div class="mt-2">
+                                 <button class="btn btn-info " data-idtin="${post.masp}" onclick="checkStatusTrue(this)">Duyệt</button>
+                              </div>
+                           </td>`
+                  }
+
+                row.innerHTML = htmlString
+                tbody.appendChild(row); 
+            })
+        })
+        .catch((error) => {
+            console.error('Errordistrict:', error);
+        });
+  } 
+</script>
+
+

@@ -1,0 +1,29 @@
+<div class="container">
+{{#each user}}
+   <div class="card mb-3" style="max-width: 540px;">
+   <div class="row g-0">
+      <div class="col-md-4">
+         {{#if this.anhnd}}
+         <img src="http://192.168.162.172:1144/imgs/{{this.anhnd}}" alt="user image" class="img-fluid rounded-start">
+         {{else}}
+         <img src="http://192.168.162.172:1144/imgs/user1.jpg" alt="user image" class="img-fluid rounded-start">
+         {{/if}}
+      </div>
+      <div class="col-md-8">
+         <div class="card-body">
+         <h5 class="card-title">{{this.tennd}}</h5>
+         <p class="card-text">Số điện thoại : {{this.sdt}}</p>
+         <p class="card-text text-muted">Mật khẩu : {{this.matkhau}}</p>
+         <p class="card-text"><small class="text-muted">Địa chỉ : {{this.diachi}}, {{this.xaphuong}}, {{this.quanhuyen}}, {{this.thanhpho}}</small></p>
+         </div>
+      </div>
+   </div>
+   </div>
+{{/each}}
+  
+  {{!-- <p>Tài khoản : {{this.taikhoan}}</p>
+  <p>Mật khẩu : {{this.matkhau}}</p> --}}
+  {{#unless user}}
+   <p>user not passed</p>
+  {{/unless}}
+</div>

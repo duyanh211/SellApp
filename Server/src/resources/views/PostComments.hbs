@@ -1,0 +1,36 @@
+<div class="container mt-3">
+    <h2>
+      Danh sách bình luận góp ý
+    </h2>
+
+    <table class="table table-light mt-3">
+    <thead>
+      <tr>
+        <th class="text-center">Stt</th>
+        <th class="text-center">Tên người dùng</th>
+        <th class="text-center">Nội dung</th>
+        <th class="text-center">Thời gian tạo</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+        {{#each PostComments}}
+      <tr>
+        <td><h5 class="text-center ">{{plus @index 1}}</h5></td>
+        <td ><h5 class="text-center ">{{this.tennd}}</h5></td>
+        <td class="text-center">{{this.noidung}}</td>
+        <td class="text-center">{{this.DateCreate}}</td>
+        <td>
+          <div >
+            <a class="btn btn-info" href="list/details/{{this.mand_bl}}">Chi Tiết</a> 
+          </div>
+        </td>
+      </tr>
+          {{/each}}
+    </tbody>
+  </table>
+
+    <div class="my-5 cross-line "></div>
+  </div>
+
